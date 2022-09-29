@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="kr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragment/layout}">
+
+
+<div layout:fragment="custom-content" id="CNTNTLIST">
+    <div th:insert="fragment/adminGnb :: adminGnbFragment"></div>
+
+    <section>
+        <div name="wrap" class="wrap">
+            <h4 id="pageTitle" name="pageTitle" >컨텐츠리스트</h4>
+            <div>
+                <button id="btnAdd" name="btnAdd" type="button" class="btn btn-primary btn-sm">신규</button>
+            </div>
+        </div>
+
+        <div name="wrap" class="wrap">
+            <h6>검색조건</h6>
+            <form>
+                <div class="row mb-1">
+                    <div class="col-md-3">
+                        <label class="form-label" for="CntntTitle">제목</label>
+                        <input class="form-control" type="text"
+                               id="CntntTitle" name="CntntTitle" value=""
+                               placeholder="입력">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="Cntnt">내용</label>
+                        <input class="form-control" type="text"
+                               id="Cntnt" name="Cntnt" value=""
+                               placeholder="입력">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label " for="UseYn">공개여부</label>
+                        <select class="form-select" id="UseYn" name="UseYn">
+                            <option value="">전체</option>
+                            <option value="1">사용</option>
+                            <option value="0">미사용</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label " for="DelYn">삭제여부</label>
+                        <select class="form-select" id="DelYn" name="DelYn">
+                            <option value="">전체</option>
+                            <option value="1">삭제</option>
+                            <option value="0">미삭제</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+            <div>
+                <button type="button"
+                        id="btnSearch" name="btnSearch"
+                        class="btn btn-primary btn-sm">조회</button>
+            </div>
+        </div>
+
+
+        <div name="wrap" class="wrap">
+            <h6>검색결과</h6>
+            <div id="CommData" name="CommData">
+                <!--                <div id="CommMsgData"-->
+                <!--                     name="CommMsgData"-->
+                <!--                     style="color: #736464"-->
+                <!--                     th:if="${msg != null}">-->
+                <!--                    <span name="Status"-->
+                <!--                          th:text="${msg.Status}"></span>-->
+                <!--                    <span name="Title"-->
+                <!--                          th:text="${msg.Title}"></span>-->
+                <!--                    <span name="Message"-->
+                <!--                          th:text="${msg.Message}"></span>-->
+                <!--                </div>-->
+                <table class="table table-hover table-bordered" id="table" name="table">
+                    <thead>
+                    <tr>
+                        <td>카테고리</td>
+                        <td>제목</td>
+                        <td>디스플레이권한</td>
+                        <td>조회수</td>
+                        <td>정렬</td>
+                        <td>생성일자</td>
+                        <td>생성자</td>
+                        <td>수정일자</td>
+                        <td>수정자</td>
+                        <td>수정</td>
+                        <td>공개여부</td>
+                        <td>삭제여부</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${cntntList != null && #lists.size(cntntList) > 0}"
+                        th:each="cntnt, idx : ${cntntList}"
+                        th:data-cntntpid="${cntnt?.CntntPid}"
+                        th:data-useyn="${cntnt?.UseYn}"
+                        th:data-delyn="${cntnt?.DelYn}"
+                        th:classappend="${cntnt?.DelYn} == '1' ? strikeThrough">
+
+                        <td th:text="${cntnt.MppCtgrName}">카테고리</td>
+                        <td th:text="${cntnt.CntntTitle}">제목</td>
+                        <td th:text="${cntnt.CntntDspy} eq '0' ? '모두' : '개별'">디스플레이권한</td>
+                        <td th:text="${cntnt.VwCnt}">조회수</td>
+                        <td th:text="${cntnt.Sort}">정렬</td>
+                        <td th:text="${cntnt.CreateDate}">생성일자</td>
+                        <td th:text="${cntnt.CreateName}">생성자</td>
+                        <td th:text="${cntnt.ModifyDate}">수정일자</td>
+                        <td th:text="${cntnt.ModifyName}">수정자</td>
+
+                        <td><button name="btnModify" class="btn btn-secondary btn-sm"> 수정 </button></td>
+                        <td><button name="btnUse" class="btn btn-secondary btn-sm" th:text="${cntnt.UseYn} == '1' ? '공개' : '미공개'"> 공개 </button></td>
+                        <td><button name="btnDelete" class="btn btn-secondary btn-sm" th:text="${cntnt.DelYn} == '1' ? '삭제' : '미삭제'"> 삭제 </button></td>
+                    </tr>
+                    <tr th:unless="${cntntList != null && #lists.size(cntntList) > 0}">
+                        <td colspan='12'>no Data<td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script type="text/javascript" th:inline="javascript">
+        let getCntntList = function () {
+
+            // TargetLodingImg.start(CNTNTLIST.container);
+
+            let paramData = CNTNTLIST.container.find('form').serializeObject();
+            COM.callAjax('/admin/cntnt/cntntList/getCntntList', 'POST', 'html', paramData,
+                function (result, textStatus, data) {
+                    CNTNTLIST.container.find('#CommData').replaceWith(result);
+                }, function (xhr, errorName, error) {
+                    CNTNTLIST.container.find('#CommData').replaceWith("<div>Ajax Error</div>");
+                }, function () {
+                    // let status = CNTNTLIST.container.find('#CommMsgData [name=Status]').text();
+                    // if (COM.intOnly(status) != 200) {
+                    //     let message = CNTNTLIST.container.find('#CommMsgData [name=Message]').text();
+                    //     if (COM.isNullOrEmpty(message)) {
+                    //         message = "[" + status + "]메시지 값이 비어있습니다.";
+                    //     }
+                    //     alert(message);
+                    // }
+
+                    // TargetLodingImg.stop(CNTNTLIST.container);
+                });
+        };
+
+        let setCntntAction = function (e,param2,param3,param4) {
+            let Url = e.name === "btnUse" ? "/admin/cntnt/cntntList/setCntntUse" :
+                e.name === "btnDelete" ? "/admin/cntnt/cntntList/setCntntDelete" : "";
+
+            if (COM.isNullOrEmpty(Url)) {
+                return false;
+            };
+
+            let paramData = {
+                CntntPid: param2,
+                DelYn: param3 === 1 ? 0 : 1,
+                UseYn: param4 === 1 ? 0 : 1
+            };
+
+            COM.callAjax(Url, 'POST', 'html', paramData,
+                function (result, textStatus, data) {
+                    CNTNTLIST.container.find('#CommMsgData').replaceWith(result);
+                }, function (xhr, errorName, error) {
+                    CNTNTLIST.container.find('#CommMsgData').replaceWith("<div>Ajax Error</div>");
+                }, function () {
+                    getCntntList();
+                    // let status = CNTNTLIST.container.find('#CommMsgData [name=Status]').text();
+                    // if (COM.intOnly(status) === 200) {
+                    //     getCodeList();
+                    // } else {
+                    //     let message = CNTNTLIST.container.find('#CommMsgData [name=Message]').text();
+                    //     if (COM.isNullOrEmpty(message)) {
+                    //         message = "메시지 값이 비어있습니다."
+                    //     }
+                    //     alert(message);
+                    // }
+                });
+        };
+
+        const CNTNTLIST = {
+            container:null,
+
+            init:function(){
+                this.container = COM.getContainer('#CNTNTLIST');
+                getCntntList();
+            },
+
+            registerEventHandler:function(){
+                // 신규버튼
+                CNTNTLIST.container.find('button[name=btnAdd]').on('click', function (e) {
+                    e.preventDefault();
+                    location.href = /*[[ @{/admin/Cntnt/CntntWrite} ]]*/;
+                });
+
+                // 조회버튼
+                CNTNTLIST.container.find('button[name=btnSearch]').on('click', function (e) {
+                    e.preventDefault();
+                    getCntntList();
+                });
+
+                // 수정버튼
+                CNTNTLIST.container.find('section').on('click', 'tbody tr button[name=btnModify]' , function (e) {
+                    e.preventDefault();
+                    let param1 = $(this).parents('tr').data('cntntpid');
+                    if (COM.isNullOrEmpty(param1)) {
+                        alert('올바른 접근이 아닙니다.');
+                    } else {
+                        location.href = '/admin/cntnt/CntntWrite?CntntPid=' + param1 ;
+                    }
+                });
+
+                // 공개버튼, 삭제버튼
+                CNTNTLIST.container.find('section').on('click', 'tbody tr button[name=btnUse], tbody tr button[name=btnDelete]' , function (e) {
+                    e.preventDefault();
+
+                    let Message = this.name === "btnUse" ? "컨텐츠 공개여부를 변경하시겠습니까?" :
+                        this.name === "btnDelete" ? "컨텐츠를 삭제하시겠습니까?" : "";
+
+                    if (confirm(Message) === true) {
+                        let param1 = $(this).parents('tr').data('cntntpid');
+                        let param2 = $(this).parents('tr').data('delyn');
+                        let param3 = $(this).parents('tr').data('useyn');
+
+                        if (COM.isNullOrEmpty(param1)) {
+                            alert('올바른 접근이 아닙니다.');
+                        } else if (this.name === "btnDelete" && param2 === "1") {
+                            alert('이미 삭제된 데이터 입니다.');
+                        } else {
+                            setCntntAction(this,param1,param2,param3);
+                        }
+                    }
+                });
+            }
+        }
+
+        jQuery(function($){
+            CNTNTLIST.init();
+            CNTNTLIST.registerEventHandler();
+        });
+
+    </script>
+</div>
+</html>

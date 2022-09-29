@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="gnbFragment" id="gnb">
+    <nav>
+        <span><a th:href="@{/}">HOME</a></span>
+        <div>
+            <th:block id="CommData" name="CommData">
+            <ul th:if="${ctgrList != null && #lists.size(ctgrList) > 0}"
+                th:each="gnbCtgr, idx : ${ctgrList}">
+                <li th:attr="data-value=${gnbCtgr.CtgrPid}"
+                    th:text="${gnbCtgr.CtgrName}"
+                    th:remove="tag">
+                </li>
+            </ul>
+            </th:block>
+        </div>
+    </nav>
+
+    <script type="text/javascript" th:inline="javascript">
+
+        let getGnbCtgrList = function () {
+            COM.callAjax('/admin/ctgr/ctgrList/getGnbCtgrList', 'POST', 'html', {
+                    CtgrPrntsPid : 0,
+                    UseYn : '1',
+                    DelYn : '0'
+                },
+                function (result, textStatus, data) {
+                    console.log(result);
+                    gnb.container.find('#CommData').replaceWith(result);
+                }, function (xhr, errorName, error) {
+                    gnb.container.find('#CommData').replaceWith("<div>Ajax Error</div>");
+                }, function () {
+                    //
+                });
+        };
+
+        const gnb = {
+            container:null,
+
+            init:function(){
+                this.container = COM.getContainer('#gnb');
+                getGnbCtgrList();
+            },
+
+            registerEventHandler:function(){
+
+            }
+        };
+
+        jQuery(function($){
+            gnb.init();
+            gnb.registerEventHandler();
+        });
+    </script>
+</div>
+</html>

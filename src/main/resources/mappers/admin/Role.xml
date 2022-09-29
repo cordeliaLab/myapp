@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.myapp.mapper.admin.RoleMpp">
+    <select id="getRoleList" parameterType="com.study.myapp.model.admin.RoleModel" resultType="com.study.myapp.model.admin.RoleModel">
+        SELECT
+        @RowCount := @RowCount + 1 AS RowNum
+        ,RL.RolePid
+        ,RL.RoleName
+        ,RL.DelYn
+        ,RL.CreateDate
+        ,RL.CreateUserPid
+        ,(select UI.UserName from myapp.user as UI where UI.UserPid = RL.CreateUserPid) as CreateName
+        ,(select UI.UserId from myapp.user as UI where UI.UserPid = RL.CreateUserPid) as CreateUserId
+        ,RL.ModifyDate
+        ,RL.ModifyUserPid
+        ,(select UI.UserName from myapp.user as UI where UI.UserPid = RL.ModifyUserPid) as ModifyName
+        ,(select UI.UserId from myapp.user as UI where UI.UserPid = RL.ModifyUserPid) as ModifyUserId
+        FROM myapp.role as RL, (SELECT @RowCount := 0) temp
+        <where>
+            <if test="RoleName != '' and RoleName != null">
+                AND RL.RoleName LIKE CONCAT('%', #{RoleName}, '%')
+            </if>
+            <if test="DelYn != '' and DelYn != null">
+                AND RL.DelYn = #{DelYn}
+            </if>
+        </where>
+        ORDER BY RowNum desc;
+    </select>
+    <select id="getRole" parameterType="com.study.myapp.model.admin.RoleModel" resultType="com.study.myapp.model.admin.RoleModel">
+        SELECT
+            RL.RolePid
+             ,RL.RoleName
+             ,RL.DelYn
+             ,RL.CreateDate
+             ,RL.CreateUserPid
+             ,(select UI.UserName from myapp.user as UI where UI.UserPid = RL.CreateUserPid) as CreateName
+             ,(select UI.UserId from myapp.user as UI where UI.UserPid = RL.CreateUserPid) as CreateUserId
+             ,RL.ModifyDate
+             ,RL.ModifyUserPid
+             ,(select UI.UserName from myapp.user as UI where UI.UserPid = RL.ModifyUserPid) as ModifyName
+             ,(select UI.UserId from myapp.user as UI where UI.UserPid = RL.ModifyUserPid) as ModifyUserId
+        FROM myapp.role as RL
+        WHERE RL.RolePid = ${RolePid}
+    </select>
+    <insert id="setRoleAdd" parameterType="com.study.myapp.model.admin.RoleModel">
+        INSERT
+        INTO myapp.role
+        (
+        RoleName
+        ,DelYn
+        ,CreateDate
+        ,CreateUserPid
+        )
+        VALUES
+            (
+             RoleName = #{RoleName}
+            ,DelYn = #{DelYn}
+            ,CreateDate = NOW()
+            ,CreateUserPid = ${CreateUserPid}
+            );
+    </insert>
+    <update id="setRoleModify" parameterType="com.study.myapp.model.admin.RoleModel">
+        UPDATE myapp.role
+        SET
+           RoleName = #{RoleName}
+          ,DelYn = #{DelYn}
+          ,ModifyDate = NOW()
+          ,ModifyUserPid = ${ModifyUserPid}
+        WHERE RolePid = ${RolePid}
+    </update>
+    <update id="setRoleDelete" parameterType="com.study.myapp.model.admin.RoleModel">
+        UPDATE myapp.role
+        SET DelYn = #{DelYn}
+          ,ModifyDate = NOW()
+          ,ModifyUserPid = ${ModifyUserPid}
+        WHERE RolePid = ${RolePid}
+    </update>
+</mapper>

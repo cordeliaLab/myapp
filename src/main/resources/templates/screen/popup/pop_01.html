@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="kr"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<div class="modal popup" tabindex="-1" aria-modal="true" role="dialog" id="POP_01">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">제목</h5>
+                <button type="button" name="btnCancel" class="btn-close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="card-body">
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" name="btnCancel" class="btn btn-secondary">취소</button>
+                <button type="button" name="btnSelect" class="btn btn-primary">선택</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const POP_01 = {
+        data: {},
+        container:null,
+        init:function(){
+            this.container = COM.getContainer('#POP_01');
+            console.log(this.container);
+            console.log(this.container.data("data"));
+
+            if(!COM.isNullOrEmpty(this.container.data("data"))){
+                this.data = this.container.data("data");
+            }
+        },
+
+        registerEventHandler:function(){
+            POP_01.container.find('.modal-content').on('click', 'div button[name=btnCancel]', function (e) {
+                e.preventDefault();
+                POP_01.container.fadeOut(200);
+                // POP_01.container.remove();
+            });
+            POP_01.container.find('.modal-content').on('click', 'div button[name=btnSelect]', function (e) {
+                e.preventDefault();
+                let $this = $(this);
+
+                POP_01.data[Object.keys(POP_01.data)[0]] = $this.data('CtgrPrntsPid');
+                POP_01.data[Object.keys(POP_01.data)[1]] = $this.data('CtgrPid');
+
+                COM.bindData(POP_01.container.parent('div').find('form'), POP_01.container.data);
+
+                POP_01.container.find('button[name=btnCancel]').trigger('click');
+            });
+            POP_01.container.find('.modal-content').on('click', 'div button[name=btnSearch]' , function (e) {
+                e.preventDefault();
+            });
+        }
+    };
+    jQuery(function($){
+        POP_01.init();
+        POP_01.registerEventHandler();
+    });
+
+</script>
+</html>

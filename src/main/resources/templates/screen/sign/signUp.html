@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="kr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragment/layout}">
+
+<div layout:fragment="custom-content" id="SIGNUP">
+
+    회원가입
+    <script type="text/javascript" th:inline="javascript">
+        let SIGNUP = (function () {
+            let $container = $("#SIGNUP");
+
+            let init = function () {
+            };
+
+            let registerEventHandler = function () {
+            };
+
+            return {
+                init: function () {
+                    init();
+                    registerEventHandler();
+                }
+            };
+        })();
+
+        SIGNUP.init();
+    </script>
+</div>
+</html>

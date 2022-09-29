@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="kr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragment/layout}">
+
+
+<div layout:fragment="custom-content" id="CNTNTWRITE">
+    <div th:insert="fragment/adminGnb :: adminGnbFragment"></div>
+
+    <section>
+        <div name="wrap" class="wrap">
+            <h4 id="pageTitle" name="pageTitle" ></h4>
+            <div>
+                <button type="button" id="btnList" name="btnList" class="display_none btn btn-primary btn-sm">목록</button>
+                <button type="button" id="btnAdd" name="btnAdd" class="display_none btn btn-primary btn-sm">신규</button>
+                <button type="button" id="btnModify" name="btnModify" class="display_none btn btn-primary btn-sm">수정</button>
+                <button type="button" id="btnDelete" name="btnDelete" class="display_none btn btn-primary btn-sm">삭제</button>
+            </div>
+        </div>
+
+        <div name="wrap" class="wrap">
+            <h6>컨텐츠정보</h6>
+            <form id="form" name="form">
+                <div id="CommData" name="CommData">
+                    <!--                    <div id="CommMsgData" name="CommMsgData" style="color: #736464" th:if="${msg != null}">-->
+                    <!--                        <span name="Status" th:text="${msg.Status}"></span>-->
+                    <!--                        <span name="Title" th:text="${msg.Title}"></span>-->
+                    <!--                        <span name="Message" th:text="${msg.Message}"></span>-->
+                    <!--                    </div>-->
+
+
+                    <div>
+                        <label class="col-sm-1">경로</label>
+                        <input class="col-sm-1" type="text" id="MppCtgrName" name="MppCtgrName"
+                               th:value="${cntnt?.MppCtgrName}">
+                        <input class="col-sm-1" type="hidden" id="MppCtgrPid" name="MppCtgrPid"
+                               th:value="${cntnt?.MppCtgrPid}">
+                    </div>
+
+                    <div>
+                        <label class="col-sm-1">제목</label>
+                        <input class="col-sm-1" type="text" id="CntntTitle" name="CntntTitle"
+                               th:value="${cntnt?.CntntTitle}">
+                        <input class="col-sm-1" type="hidden" id="CntntPid" name="CntntPid"
+                               th:value="${cntnt?.CntntPid}">
+                    </div>
+
+                    <div>
+                        <label class="col-sm-1">내용</label>
+                        <textarea class="col-sm-1"
+                                  id="Cntnt" name="Cntnt"
+                                  th:text="${cntnt?.Cntnt}"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="col-sm-1" >디스플레이권한</label>
+                        <input type="radio" id="CntntDspyZero" name="CntntDspy" value='0'
+                               th:checked="${cntnt?.CntntDspy} eq '0'">
+                        <label for="CntntDspyZero">모두</label>
+
+                        <input type="radio" id="CntntDspyOne" name="CntntDspy" value='1'
+                               th:checked="${cntnt?.CntntDspy} eq '1'">
+                        <label for="CntntDspyOne">개별</label>
+                    </div>
+
+                    <div>
+                        <label class="col-sm-1" for="Sort">조회수</label>
+                        <input class="col-sm-3" type="number" min="0" id="VwCnt" name="VwCnt"
+                               th:value="${cntnt?.VwCnt}">
+                    </div>
+
+                    <div>
+                        <label class="col-sm-1" for="Sort">정렬</label>
+                        <input class="col-sm-3" type="number" min="0" id="Sort" name="Sort"
+                               th:value="${cntnt?.Sort}">
+                    </div>
+
+                    <div>
+                        <label class="col-sm-1" for="UseYn">공개여부</label>
+                        <select class="col-sm-3" id="UseYn" name="UseYn">
+                            <option value="">선택</option>
+                            <option value="1"
+                                    th:selected="${cntnt?.UseYn} eq '1'">공개</option>
+                            <option value="0"
+                                    th:selected="${cntnt?.UseYn} eq '0'">미공개</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="col-sm-1" for="DelYn">삭제유무</label>
+                        <select class="col-sm-3" id="DelYn" name="DelYn">
+                            <option value="">선택</option>
+                            <option value="1"
+                                    th:selected="${cntnt?.DelYn} eq '1'">삭제</option>
+                            <option value="0"
+                                    th:selected="${cntnt?.DelYn} eq '0'">미삭제</option>
+                        </select>
+                    </div>
+
+                    <div name="onlyModify" class="display_none">
+                        <div>
+                            <label class="col-sm-1" for="CreateName">생성자</label>
+                            <span type="text" id="CreateName" name="CreateName" readonly
+                                  th:text="${cntnt?.CreateName}">생성자</span>
+                        </div>
+                        <div>
+                            <label class="col-sm-1" for="CreateUserId">생성계정</label>
+                            <span type="text" id="CreateUserId" name="CreateUserId" readonly
+                                  th:text="${cntnt?.CreateUserId}">생성계정</span>
+                        </div>
+                        <div>
+                            <label class="col-sm-1" for="CreateDate">생성일자</label>
+                            <span type="text" id="CreateDate" name="CreateDate" readonly
+                                  th:text="${cntnt?.CreateDate}">생성일자</span>
+                        </div>
+
+                        <div>
+                            <label class="col-sm-1" for="ModifyName">수정자</label>
+                            <span type="text" id="ModifyName" name="ModifyName" readonly
+                                  th:text="${cntnt?.ModifyName}">수정자</span>
+                        </div>
+                        <div>
+                            <label class="col-sm-1" for="ModifyUserId">수정계정</label>
+                            <span type="text" id="ModifyUserId" name="ModifyUserId" readonly
+                                  th:text="${cntnt?.ModifyUserId}">수정계정</span>
+                        </div>
+                        <div>
+                            <label class="col-sm-1" for="ModifyDate">수정일자</label>
+                            <span type="text" id="ModifyDate" name="ModifyDate" readonly
+                                  th:text="${cntnt?.ModifyDate}">수정일자</span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <script type="text/javascript" th:inline="javascript">
+        function setUI(param1) {
+            if (param1 === 'modify') {
+                 CNTNTWRITE.container.find('[name=pageTitle]').html("카테고리수정");
+                //  CNTNTWRITE.container.find('[name=btnDelete], [name=btnModify], [name=onlyModify]').show();
+                //  CNTNTWRITE.container.find('[name=btnAdd]').hide();
+                 CNTNTWRITE.container.find('[name=btnDelete], [name=btnModify], [name=btnList]').removeClass('display_none');
+                 CNTNTWRITE.container.find('[name=btnAdd]').addClass('display_none');
+                 CNTNTWRITE.container.find('[name= CntntPid]').attr('readonly', true);
+                 CNTNTWRITE.container.find('[name="onlyModify"]').removeClass('display_none');
+            } else {
+                 CNTNTWRITE.container.find('[name=pageTitle]').html("카테고리등록");
+                //  CNTNTWRITE.container.find('[name=btnDelete], [name=btnModify], [name=onlyModify]').hide();
+                //  CNTNTWRITE.container.find('[name=btnAdd], [name=onlyModify]').show();
+                 CNTNTWRITE.container.find('[name=btnDelete], [name=btnModify]').addClass('display_none');
+                 CNTNTWRITE.container.find('[name=btnAdd], [name=btnList]').removeClass('display_none');
+                 CNTNTWRITE.container.find('[name="onlyModify"]').addClass('display_none');
+            }
+        }
+
+        let getCntnt = function (param1) {
+            let url = '/admin/cntnt/cntntWrite/getCntnt';
+            let paramData = {
+                CntntPid:param1
+            };
+            COM.callAjax(url, 'POST', 'html', paramData,
+                function (result, textStatus, data) {
+                     CNTNTWRITE.container.find('#CommData').replaceWith(result);
+                }, function (xhr, errorName, error) {
+                     CNTNTWRITE.container.find('#CommData').replaceWith("<div>Ajax Error</div>");
+                }, function () {
+                    // let status =  CNTNTWRITE.container.find('#CommMsgData [name=Status]').text();
+                    // if (COM.intOnly(status) != 200) {
+                    //     let message =  CNTNTWRITE.container.find('#CommMsgData [name=Message]').text();
+                    //     if (COM.isNullOrEmpty(message)) {
+                    //         message = "메시지 값이 비어있습니다."
+                    //     }
+                    //     alert(message);
+                    // }
+                });
+        };
+
+        let InputValidate = function (eventNm) {
+            if (eventNm.name === 'btnAdd') {
+                return  true;
+            } else if (eventNm.name === 'btnModify') {
+                let UseYn = CNTNTWRITE.container.find('select[name=UseYn] option:selected').val();
+                let DelYn = CNTNTWRITE.container.find('select[name=DelYn] option:selected').val();
+                if (COM.isNullOrEmpty(UseYn) || COM.isNullOrEmpty(DelYn)) {
+                    alert('공개여부와 삭제여부를 선택해주세요!');
+                    return  false;
+                } else {
+                    return  true;
+                }
+            } else if (eventNm.name === 'btnDelete') {
+                if (confirm('정말 삭제하시겠습니까?') === true) {
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        let setCntntAction = function (eventNm) {
+            if (InputValidate(eventNm) === false) {
+                return false;
+            }
+
+            let url;
+            let paramData;
+            if (eventNm.name === 'btnAdd') {
+                url = '/admin/cntnt/cntntWrite/setCntntAdd';
+                paramData =  CNTNTWRITE.container.find('form').serializeObject();
+            } else if (eventNm.name === 'btnModify') {
+                url = '/admin/cntnt/cntntWrite/setCntntModify';
+                paramData =  CNTNTWRITE.container.find('form').serializeObject();
+            } else if (eventNm.name === 'btnDelete') {
+                url = '/admin/cntnt/cntntWrite/setCntntDelete';
+                paramData = $.extend( CNTNTWRITE.container.find('form').serializeObject(),{
+                    DelYn : '1'
+                });
+            }
+            COM.callAjax(url, 'POST', 'html', paramData,
+                function (result, textStatus, data) {
+                     CNTNTWRITE.container.find('#CommMsgData').replaceWith(result);
+                }, function (xhr, errorName, error) {
+                     CNTNTWRITE.container.find('#CommMsgData').replaceWith("<div>Ajax Error</div>");
+                }, function () {
+                    goList();
+                    // let status =  CNTNTWRITE.container.find('#CommMsgData [name=Status]').text();
+                    // if (COM.intOnly(status) === 200) {
+                    //     goList();
+                    // } else {
+                    //     let message =  CNTNTWRITE.container.find('#CommMsgData [name=Message]').text();
+                    //     if (COM.isNullOrEmpty(message)) {
+                    //         message = "메시지 값이 비어있습니다."
+                    //     }
+                    //     alert(message);
+                    // }
+                });
+        };
+
+        let goList = function () {
+            //location.href = '/admin/cntnt/cntntList';
+            location.href = /*[[ @{/admin/cntnt/cntntList} ]]*/;
+        }
+
+        const CNTNTWRITE = {
+
+            container:null,
+
+            init:function(){
+                this.container = COM.getContainer('#CNTNTWRITE');
+
+                let CntntPid = $.getUrlVar("CntntPid");
+
+                let pageMode = COM.modeCheck();
+
+                setUI(pageMode);
+
+                if (pageMode === 'modify') {
+                    if (COM.isNullOrEmpty(CntntPid)) {
+                        alert('올바른 접근이 아닙니다. 리스트 페이지로 이동합니다.');
+                        goList();
+                    } else {
+                        getCntnt(CntntPid);
+                    }
+                }
+
+                $(document).ajaxStop(function(){
+                    setUI(pageMode);
+                });
+            },
+
+            registerEventHandler:function(){
+                // 목록
+                 CNTNTWRITE.container.find('button[name=btnList]').on('click', function (e) {
+                    goList();
+                    e.preventDefault();
+                });
+
+                // 신규, 수정, 삭제
+                 CNTNTWRITE.container.find('button[name=btnAdd], div button[name=btnModify], div button[name=btnDelete]').on('click',function (e) {
+                    setCntntAction(this);
+                    e.preventDefault();
+                });
+            }
+        }
+        jQuery(function($){
+             CNTNTWRITE.init();
+             CNTNTWRITE.registerEventHandler();
+        });
+    </script>
+</div>
+</html>

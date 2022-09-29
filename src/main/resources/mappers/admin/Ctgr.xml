@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.myapp.mapper.admin.CtgrMpp">
+    <select id="getCtgrList" parameterType="com.study.myapp.model.admin.CtgrModel" resultType="com.study.myapp.model.admin.CtgrModel">
+        WITH RECURSIVE tree_query AS (
+            SELECT
+                CtgrPid,
+                CtgrPrntsPid,
+                CtgrName,
+                CtgrName AS CtgrPrntsName,
+                0 CtgrLevel,
+                CtgrDspyType,CtgrDspy,
+                UseYn,
+                DelYn,
+                Sort,
+                CONVERT(LPAD(CONVERT(Sort, CHAR(4)), 4, '0'), CHAR(100)) AS SEQ_CHAR
+            FROM myapp.ctgr
+            WHERE CtgrPrntsPid = 0
+            UNION ALL
+            SELECT
+                B.CtgrPid,
+                B.CtgrPrntsPid,
+                B.CtgrName,
+                C.CtgrPrntsName,
+                (C.CtgrLevel + 1) as CtgrLevel,
+                B.CtgrDspyType,B.CtgrDspy,
+                B.UseYn,
+                B.DelYn,
+                B.Sort,
+                CONCAT(C.SEQ_CHAR,LPAD(CONVERT(B.Sort, CHAR(4)), 4,'0')) AS SEQ_CHAR
+            FROM myapp.ctgr AS B INNER JOIN tree_query AS C ON B.CtgrPrntsPid = C.CtgrPid
+        )
+        SELECT CtgrPid, CtgrPrntsPid, CtgrName, CtgrPrntsName, CtgrLevel, CtgrDspyType, CtgrDspy, UseYn, DelYn, Sort
+        FROM tree_query
+        <where>
+            <if test="CtgrName != '' and CtgrName != null">
+                AND CtgrName LIKE CONCAT('%', #{CtgrName}, '%')
+            </if>
+            <if test="CtgrPrntsName != '' and CtgrPrntsName != null">
+                AND CtgrPrntsName LIKE CONCAT('%', #{CtgrPrntsName}, '%')
+            </if>
+            <if test="CtgrPid != '' and CtgrPid != null">
+                AND CtgrPid = ${CtgrPid}
+            </if>
+            <if test="CtgrPrntsPid != '' and CtgrPrntsPid != null">
+                AND CtgrPrntsPid = ${CtgrPrntsPid}
+            </if>
+            <if test="UseYn != '' and UseYn != null">
+                AND UseYn = #{UseYn}
+            </if>
+            <if test="DelYn != '' and DelYn != null">
+                AND DelYn = #{DelYn}
+            </if>
+        </where>
+        ORDER BY SEQ_CHAR;
+    </select>
+
+    <select id="getCtgr" parameterType="com.study.myapp.model.admin.CtgrModel" resultType="com.study.myapp.model.admin.CtgrModel">
+        SELECT
+        CT.CtgrPid
+        ,CT.CtgrName
+        ,CT.CtgrPrntsPid
+        ,IFNULL((select CT2.CtgrName from myapp.ctgr as CT2 where CT2.CtgrPid = CT.CtgrPrntsPid),CT.CtgrName) as CtgrPrntsName
+        ,(select count(CT2.CtgrPid) from myapp.ctgr as CT2 where CT2.CtgrPrntsPid = CT.CtgrPid) as CtgrChildCnt
+        ,case CT.CtgrPrntsPid when '0' then '0' else '1' end as CtgrLevel
+        ,CT.CtgrDspyType
+        ,CT.CtgrDspy
+        ,CT.Sort
+        ,CT.UseYn
+        ,CT.DelYn
+        ,CT.CreateDate
+        ,CT.CreateUserPid
+        ,(select UI.UserName from myapp.user as UI where UI.UserPid = CT.CreateUserPid) as CreateName
+        ,(select UI.UserId from myapp.user as UI where UI.UserPid = CT.CreateUserPid) as CreateUserId
+        ,CT.ModifyDate
+        ,CT.ModifyUserPid
+        ,(select UI.UserName from myapp.user as UI where UI.UserPid = CT.ModifyUserPid) as ModifyName
+        ,(select UI.UserId from myapp.user as UI where UI.UserPid = CT.ModifyUserPid) as ModifyUserId
+        FROM myapp.ctgr as CT
+        WHERE CT.CtgrPid = ${CtgrPid}
+    </select>
+
+    <insert id="setCtgrAdd" parameterType="com.study.myapp.model.admin.CtgrModel">
+        INSERT
+        INTO myapp.ctgr
+        (
+         CtgrName
+        ,CtgrPrntsPid
+        ,CtgrDspyType
+        ,CtgrDspy
+        ,Sort
+        ,UseYn
+        ,DelYn
+        ,CreateDate
+        ,CreateUserPid
+        )
+        VALUES
+            (
+             CtgrName = #{CtgrName}
+            ,CtgrPrntsPid = ${CtgrPrntsPid}
+            ,CtgrDspyType = #{CtgrDspyType}
+            ,CtgrDspy = #{CtgrDspy}
+            ,Sort = ${Sort}
+            ,UseYn = #{UseYn}
+            ,DelYn = #{DelYn}
+            ,CreateDate = NOW()
+            ,CreateUserPid = ${CreateUserPid}
+            );
+    </insert>
+
+    <update id="setCtgrModify" parameterType="com.study.myapp.model.admin.CtgrModel">
+        UPDATE myapp.ctgr
+        SET
+           CtgrName = #{CtgrName}
+          ,CtgrPrntsPid = ${CtgrPrntsPid}
+          ,CtgrDspyType = #{CtgrDspyType}
+          ,CtgrDspy = #{CtgrDspy}
+          ,Sort = ${Sort}
+          ,UseYn = #{UseYn}
+          ,DelYn = #{DelYn}
+          ,ModifyDate = NOW()
+          ,ModifyUserPid = ${ModifyUserPid}
+        WHERE CtgrPid = ${CtgrPid}
+    </update>
+
+    <update id="setCtgrDelete" parameterType="com.study.myapp.model.admin.CtgrModel">
+        UPDATE myapp.ctgr
+        SET
+           DelYn = #{DelYn}
+          ,ModifyDate = NOW()
+          ,ModifyUserPid = ${ModifyUserPid}
+        WHERE (CtgrPid = ${CtgrPid} OR CtgrPrntsPid = ${CtgrPid})
+    </update>
+
+    <update id="setCtgrUse" parameterType="com.study.myapp.model.admin.CtgrModel">
+        UPDATE myapp.ctgr
+        SET
+           UseYn = #{UseYn}
+          ,ModifyDate = NOW()
+          ,ModifyUserPid = ${ModifyUserPid}
+        WHERE CtgrPid = ${CtgrPid}
+    </update>
+
+    <select id="getCtgrPrntsList" parameterType="com.study.myapp.model.admin.CtgrModel" resultType="com.study.myapp.model.admin.CtgrModel">
+        SELECT
+            CT.CtgrPid
+             ,CT.CtgrName
+             ,CT.CtgrPrntsPid
+             ,IFNULL((select CT2.CtgrName from myapp.ctgr as CT2 where CT2.CtgrPid = CT.CtgrPrntsPid),CT.CtgrName) as CtgrPrntsName
+             ,(select count(CT2.CtgrPid) from myapp.ctgr as CT2 where CT2.CtgrPrntsPid = CT.CtgrPid) as CtgrChildCnt
+             ,case CT.CtgrPrntsPid when '0' then '0' else '1' end as CtgrLevel
+             ,CT.CtgrDspyType
+             ,CT.CtgrDspy
+             ,CT.Sort
+             ,CT.UseYn
+             ,CT.DelYn
+             ,CT.CreateDate
+             ,CT.CreateUserPid
+             ,(select UI.UserName from myapp.user as UI where UI.UserPid = CT.CreateUserPid) as CreateName
+             ,(select UI.UserId from myapp.user as UI where UI.UserPid = CT.CreateUserPid) as CreateUserId
+             ,CT.ModifyDate
+             ,CT.ModifyUserPid
+             ,(select UI.UserName from myapp.user as UI where UI.UserPid = CT.ModifyUserPid) as ModifyName
+             ,(select UI.UserId from myapp.user as UI where UI.UserPid = CT.ModifyUserPid) as ModifyUserId
+        FROM myapp.ctgr as CT
+        WHERE CT.CtgrPrntsPid = 0
+        AND CT.DelYn = 0
+    </select>
+</mapper>

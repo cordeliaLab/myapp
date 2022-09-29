@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<div id="snb" th:fragment="snbFragment">
+    <div class="SnbContainer">
+        <div class="UsrWrap">
+            <div class="UsrImg">
+<!--                <img th:src="${\image\my\jeyjey.png}" alt="my_image">-->
+<!--                <img class="UsrImg" src="image\my\20220815.png" alt="my_image">-->
+                <img th:src="@{/image/my/20220815.png}" alt="my_image">
+
+<!--                <img id="imgId" th:src="${data.imgUrl}" alt="my" th:if="${data.imgUrl != null}" />-->
+<!--                <input type="file" th:id="imgFile" th:name="imgFile" accept=".jpg, .png">-->
+            </div>
+            <div>
+                <span><a th:href="@{/my/index}" sec:authorize="isAuthenticated()">MY</a></span>
+                <span><a th:href="@{/admin/index}" sec:authorize="hasRole('ADMIN')">관리</a></span>
+            </div>
+        </div>
+
+        <div class="VstWrap">
+            <div>
+                Today 0
+            </div>
+            <div>
+                Total 0
+            </div>
+        </div>
+
+        <div class="CtgrWrap">
+            <nav>
+                <ul>
+                    <li>카테고리 1 </li>
+                        <ul>
+                            <li>카테고리 1-1</li>
+                            <li>카테고리 1-1</li>
+                        </ul>
+                    <li>카테고리 2 </li>
+                        <ul>
+                            <li>카테고리 2-1</li>
+                            <li>카테고리 2-1</li>
+                        </ul>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+</html>

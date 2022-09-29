@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="kr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragment/layout}">
+
+
+<div layout:fragment="custom-content" id="CODELIST" >
+    <div th:insert="fragment/adminGnb :: adminGnbFragment"></div>
+
+    <section>
+        <div name="wrap" class="wrap">
+            <h4 id="pageTitle" name="pageTitle" >코드리스트</h4>
+            <div>
+                <button type="button" id="btnAdd" name="btnAdd" class="btn btn-primary btn-sm">신규</button>
+            </div>
+        </div>
+
+        <div name="wrap" class="wrap">
+            <h6>검색조건</h6>
+            <form>
+                <div class="row mb-1">
+                    <div class="col-md-3">
+                        <label class="form-label" for="GroupName">그룹코드명</label>
+                        <input class="form-control" type="text"
+                               id="GroupName" name="GroupName" value=""
+                               placeholder="입력">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="CodeName">상세코드명</label>
+                        <input class="form-control" type="text"
+                               id="CodeName" name="CodeName" value=""
+                               placeholder="입력">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label " for="UseYn">공개여부</label>
+                        <select class="form-select" id="UseYn" name="UseYn">
+                            <option value="">전체</option>
+                            <option value="1">공개</option>
+                            <option value="0">미공개</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label " for="DelYn">삭제여부</label>
+                        <select class="form-select" id="DelYn" name="DelYn">
+                            <option value="">전체</option>
+                            <option value="1">삭제</option>
+                            <option value="0">미삭제</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+            <div>
+                <button type="button"
+                        id="btnSearch" name="btnSearch"
+                        class="btn btn-primary btn-sm">조회</button>
+            </div>
+        </div>
+
+        <div name="wrap" class="wrap">
+            <h6>검색결과</h6>
+            <div id="CommData" name="CommData">
+<!--                <div id="CommMsgData" name="CommMsgData" style="color: #736464" th:if="${msg != null}">-->
+<!--                    <span name="Status" th:text="${msg.Status}"></span>-->
+<!--                    <span name="Title" th:text="${msg.Title}"></span>-->
+<!--                    <span name="Message" th:text="${msg.Message}"></span>-->
+<!--                </div>-->
+                <table class="table table-hover table-bordered" id="table" name="table">
+                    <thead>
+                    <tr>
+                        <td>순번</td>
+                        <td>그룹코드</td>
+                        <td>그룹코드명</td>
+                        <td>상세코드</td>
+                        <td>상세코드명</td>
+                        <td>옵션01</td>
+                        <td>옵션02</td>
+                        <td>옵션03</td>
+                        <td>설명</td>
+                        <td>정렬</td>
+                        <td>수정</td>
+                        <td>공개여부</td>
+                        <td>삭제여부</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${codeList != null && #lists.size(codeList) > 0}"
+                        th:each="code, idx : ${codeList}"
+                        th:data-groupcode="${code?.GroupCode}"
+                        th:data-code="${code?.Code}"
+                        th:data-useyn="${code?.UseYn}"
+                        th:data-delyn="${code?.DelYn}"
+                        th:classappend="${code?.DelYn} == '1' ? strikeThrough">
+                        <td th:text="${code.RowNum}">순번</td>
+                        <td th:text="${code.GroupCode}">그룹코드</td>
+                        <td th:text="${code.GroupName}">그룹코드명</td>
+                        <td th:text="${code.Code}">상세코드</td>
+                        <td th:text="${code.CodeName}">상세코드명</td>
+                        <td th:text="${code.CodeOptn01}">옵션01</td>
+                        <td th:text="${code.CodeOptn02}">옵션02</td>
+                        <td th:text="${code.CodeOptn03}">옵션03</td>
+                        <td th:text="${code.CodeDesc}">설명</td>
+                        <td th:text="${code.Sort}">정렬</td>
+                        <td><button name="btnModify" class="btn btn-secondary btn-sm"> 수정 </button></td>
+                        <td><button name="btnUse" class="btn btn-secondary btn-sm" th:text="${code.UseYn} eq '1' ? '공개' : '미공개'"> 공개유무(1:사용, 0:미사용) </button>
+                        <td><button name="btnDelete" class="btn btn-secondary btn-sm" th:text="${code.DelYn} eq '1' ? '삭제' : '미삭제'"> 삭제유무(1:삭제, 0:미삭제) </button>
+                    </tr>
+                    <tr th:unless="${codeList != null && #lists.size(codeList) > 0}">
+                        <td colspan='13'>no Data<td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script defer th:inline="javascript">
+        let getCodeList = function () {
+            let paramData = CODELIST.container.find('form').serializeObject();
+            COM.callAjax('/admin/code/codeList/getCodeList', 'POST', 'html', paramData,
+                function (result, textStatus, data) {
+                    CODELIST.container.find('#CommData').replaceWith(result);
+                }, function (xhr, errorName, error) {
+                    CODELIST.container.find('#CommData').replaceWith("<div>Ajax Error</div>");
+                }, function () {
+                    // let status = CODELIST.container.find('#CommMsgData [name=Status]').text();
+                    // if (COM.intOnly(status) != 200) {
+                    //     let message = CODELIST.container.find('#CommMsgData [name=Message]').text();
+                    //     if (COM.isNullOrEmpty(message)) {
+                    //         message = "메시지 값이 비어있습니다."
+                    //     }
+                    //     alert(message);
+                    // }
+                });
+        };
+
+        let setCodeAction = function (eventNm,param1, param2, param3, param4) {
+            let Url = eventNm.name === "btnUse" ? "/admin/code/codeList/setCodeUse" :
+                eventNm.name === "btnDelete" ? "/admin/code/codeList/setCodeDelete" :
+                "";
+            let paramData = {
+                GroupCode: param1,
+                Code: param2,
+                UseYn : param3 === 1 ? 0 : 1,
+                DelYn : param4 === 1 ? 0 : 1,
+            };
+            COM.callAjax(Url, 'POST', 'html', paramData,
+                function (result, textStatus, data) {
+                    CODELIST.container.find('#CommMsgData').replaceWith(result);
+                }, function (xhr, errorName, error) {
+                    CODELIST.container.find('#CommMsgData').replaceWith("<div>Ajax Error</div>");
+                }, function () {
+                    getCodeList();
+                    // let status = CODELIST.container.find('#CommMsgData [name=Status]').text();
+                    // if (COM.intOnly(status) === 200) {
+                    //     getCodeList();
+                    // } else {
+                    //     let message = CODELIST.container.find('#CommMsgData [name=Message]').text();
+                    //     if (COM.isNullOrEmpty(message)) {
+                    //         message = "메시지 값이 비어있습니다."
+                    //     }
+                    //     alert(message);
+                    // }
+                });
+        };
+
+        let CODELIST = {
+            container:null,
+            // container: $('#CODELIST'),
+            init:function(){
+                //this.container = this.getContainer('#CODELIST');
+                this.container = COM.getContainer('#CODELIST');
+                getCodeList();
+            },
+            // getContainer:function(selector){
+            //    if( typeof jQuery == 'function' && typeof this.container !== 'object' ){
+            //        this.container = $(selector);
+            //    }
+            //    return this.container;
+            // },
+            registerEventHandler:function(){
+                // 신규버튼
+                CODELIST.container.find('button[name=btnAdd]').on('click', function (e) {
+                    e.preventDefault();
+                    location.href = /*[[ @{/admin/code/codeWrite} ]]*/;
+                });
+                // 조회버튼
+                CODELIST.container.find('button[name=btnSearch]').on('click', function (e) {
+                    e.preventDefault();
+                    getCodeList();
+                });
+                // 수정버튼
+                CODELIST.container.find('section').on('click', 'tbody tr button[name=btnModify]' , function (e) {
+                    e.preventDefault();
+                    let param1 = $(this).parents('tr').data('groupcode');
+                    let param2 = $(this).parents('tr').data('code');
+                    if (COM.isNullOrEmpty(param1) || COM.isNullOrEmpty(param2)) {
+                        alert('올바른 접근이 아닙니다.');
+                    } else {
+                        location.href = '/admin/code/codeWrite?GroupCode=' + param1 + '&Code=' + param2;
+                    }
+                });
+                // 공개여부,삭제여부
+                CODELIST.container.find('section').on('click', 'tbody tr button[name=btnDelete], tbody tr button[name=btnUse]' , function (e) {
+                    e.preventDefault();
+                    let param1 = $(this).parents('tr').data('groupcode');
+                    let param2 = $(this).parents('tr').data('code');
+                    let param3 = $(this).parents('tr').data('useyn');
+                    let param4 = $(this).parents('tr').data('delyn');
+                    if (COM.isNullOrEmpty(param1) || COM.isNullOrEmpty(param2)) {
+                        alert('올바른 접근이 아닙니다.');
+                    } else {
+                        setCodeAction(this,param1,param2,param3,param4);
+                    }
+                });
+            }
+        };
+
+        jQuery(function($){
+            CODELIST.init();
+            CODELIST.registerEventHandler();
+        });
+    </script>
+</div>
+</html>
+

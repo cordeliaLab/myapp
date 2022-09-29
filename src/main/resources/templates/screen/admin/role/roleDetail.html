@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="kr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragment/layout}">
+
+<div layout:fragment="admin-content" id="ROLEDETAIL">
+    <div th:insert="fragment/adminGnb :: adminGnbFragment"></div>
+    <div>
+        <button type="button" class="btn btn-primary btn-sm">목록</button>
+        <button type="button" class="btn btn-primary btn-sm">수정</button>
+        <button type="button" class="btn btn-primary btn-sm">삭제</button>
+    </div>
+    <h4>권한상세</h4>
+    <script type="text/javascript" th:inline="javascript">
+        let ROLEDETAIL = (function () {
+            let $container = $("#ROLELIST");
+            let init = function () {
+            };
+            let registerEventHandler = function () {
+            };
+            return {
+                init: function () {
+                    init();
+                    registerEventHandler();
+                }
+            };
+        })();
+        ROLEDETAIL.init();
+    </script>
+</div>
+</html>

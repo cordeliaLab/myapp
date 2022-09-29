@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="kr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragment/layout}">
+
+<div layout:fragment="custom-content" id="ROLELIST">
+    <div th:insert="fragment/adminGnb :: adminGnbFragment"></div>
+
+    <section>
+        <div name="wrap" class="wrap">
+            <h4 id="pageTitle" name="pageTitle" >권한리스트</h4>
+            <div>
+                <button type="button" id="btnAdd" name="btnAdd" class="btn btn-primary btn-sm">신규</button>
+            </div>
+        </div>
+
+        <div name="wrap" class="wrap">
+            <h6>검색조건</h6>
+            <form>
+                <div class="row mb-1">
+                    <div class="col-md-6">
+                        <label class="form-label" for="RoleName">권한명</label>
+                        <input class="form-control" type="text"
+                               id="RoleName" name="RoleName" value=""
+                               placeholder="입력">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label " for="DelYn">삭제여부</label>
+                        <select class="form-select" id="DelYn" name="DelYn">
+                            <option value="">전체</option>
+                            <option value="1">삭제</option>
+                            <option value="0">미삭제</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+            <div>
+                <button type="button"
+                        id="btnSearch" name="btnSearch"
+                        class="btn btn-primary btn-sm">조회</button>
+            </div>
+        </div>
+
+        <div name="wrap" class="wrap">
+            <h6>검색결과</h6>
+            <div id="CommData" name="CommData">
+                <!--                <div id="CommMsgData" name="CommMsgData" style="color: #736464" th:if="${msg != null}">-->
+                <!--                    <span name="Status" th:text="${msg.Status}"></span>-->
+                <!--                    <span name="Title" th:text="${msg.Title}"></span>-->
+                <!--                    <span name="Message" th:text="${msg.Message}"></span>-->
+                <!--                </div>-->
+                <table class="table table-hover table-bordered" id="table" name="table">
+                    <thead>
+                    <tr>
+                        <td>순번</td>
+                        <td>권한코드</td>
+                        <td>권한명</td>
+                        <td>생성일자</td>
+                        <td>생성자</td>
+                        <td>수정일자</td>
+                        <td>수정자</td>
+                        <td>수정</td>
+                        <td>삭제여부</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${roleList != null && #lists.size(roleList) > 0}"
+                        th:each="role, idx : ${roleList}"
+                        th:data-rolepid="${role?.RolePid}"
+                        th:data-delyn="${role?.DelYn}"
+                        th:classappend="${role?.DelYn} == '1' ? strikeThrough">
+                        <td th:text="${role.RowNum}">순번</td>
+                        <td th:text="${role.RolePid}">권한코드</td>
+                        <td th:text="${role.RoleName}">권한명</td>
+                        <td th:text="${role.CreateDate}">생성일자</td>
+                        <td th:text="${role.CreateName}">생성자</td>
+                        <td th:text="${role.ModifyDate}">수정일자</td>
+                        <td th:text="${role.ModifyName}">수정자</td>
+                        <td><button name="btnModify" class="btn btn-secondary btn-sm"> 수정 </button></td>
+                        <td><button name="btnDelete" class="btn btn-secondary btn-sm" th:text="${role.DelYn} eq '1' ? '삭제' : '미삭제'"> 삭제유무(1:삭제, 0:미삭제) </button>
+                    </tr>
+                    <tr th:unless="${roleList != null && #lists.size(roleList) > 0}">
+                        <td colspan='9'>no Data<td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    
+    <script type="text/javascript" th:inline="javascript">
+
+        let getRoleList = function () {
+            let paramData = ROLELIST.container.find('form').serializeObject();
+            COM.callAjax('/admin/role/roleList/getRoleList', 'POST', 'html', paramData,
+                function (result, textStatus, data) {
+                    ROLELIST.container.find('#CommData').replaceWith(result);
+                }, function (xhr, errorName, error) {
+                    ROLELIST.container.find('#CommData').replaceWith("<div>Ajax Error</div>");
+                }, function () {
+                });
+        };
+
+        let setRoleAction = function (eventNm, param1, param2) {
+            let Url = eventNm.name === "btnDelete" ? "/admin/role/roleList/setRoleDelete" : "";
+            let paramData = {
+                RolePid: param1,
+                DelYn : param2 === 1 ? 0 : 1,
+            };
+            COM.callAjax(Url, 'POST', 'html', paramData,
+                function (result, textStatus, data) {
+                    ROLELIST.container.find('#CommMsgData').replaceWith(result);
+                }, function (xhr, errorName, error) {
+                    ROLELIST.container.find('#CommMsgData').replaceWith("<div>Ajax Error</div>");
+                }, function () {
+                    getRoleList();
+                });
+        };
+
+        let ROLELIST = {
+            container:null,
+
+            init:function(){
+                this.container = COM.getContainer('#ROLELIST');
+                getRoleList();
+            },
+
+            registerEventHandler:function(){
+                // 신규버튼
+                ROLELIST.container.find('button[name=btnAdd]').on('click', function (e) {
+                    e.preventDefault();
+                    location.href = /*[[ @{/admin/role/roleWrite} ]]*/;
+                });
+                // 조회버튼
+                ROLELIST.container.find('button[name=btnSearch]').on('click', function (e) {
+                    e.preventDefault();
+                    getRoleList();
+                });
+                // 수정버튼
+                ROLELIST.container.find('section').on('click', 'tbody tr button[name=btnModify]' , function (e) {
+                    e.preventDefault();
+                    let param1 = $(this).parents('tr').data('rolepid');
+                    if (COM.isNullOrEmpty(param1) ) {
+                        alert('올바른 접근이 아닙니다.');
+                    } else {
+                        location.href = '/admin/role/roleWrite?RolePid=' + param1 ;
+                    }
+                });
+                // 공개여부,삭제여부
+                ROLELIST.container.find('section').on('click', 'tbody tr button[name=btnDelete], tbody tr button[name=btnUse]' , function (e) {
+                    e.preventDefault();
+                    let param1 = $(this).parents('tr').data('rolepid');
+                    let param2 = $(this).parents('tr').data('delyn');
+                    if (COM.isNullOrEmpty(param1) || COM.isNullOrEmpty(param2)) {
+                        alert('올바른 접근이 아닙니다.');
+                    } else {
+                        setRoleAction(this,param1,param2);
+                    }
+                });
+            }
+        };
+
+        jQuery(function($){
+            ROLELIST.init();
+            ROLELIST.registerEventHandler();
+        });
+    </script>
+</div>
+</html>

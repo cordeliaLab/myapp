@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="kr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragment/layout}">
+
+<div layout:fragment="custom-content" id="HOME">
+    안녕하세요. 제이제이홈입니다. <br>
+    방문해주셔서 감사합니다! <br>
+<!--    <nav>-->
+<!--        <span><a th:href="@{/}">HOME</a></span>-->
+<!--        <div>-->
+<!--            <th:block id="CommData" name="CommData">-->
+<!--                <ul th:if="${ctgrList != null && #lists.size(ctgrList) > 0}"-->
+<!--                    th:each="gnbCtgr, idx : ${ctgrList}">-->
+<!--                    <li th:attr="data-value=${gnbCtgr.CtgrPid}"-->
+<!--                        th:text="${gnbCtgr.CtgrName}"-->
+<!--                        th:remove="tag">-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            </th:block>-->
+<!--        </div>-->
+<!--    </nav>-->
+
+    <script type="text/javascript" th:inline="javascript">
+
+        // let getGnbCtgrList = function () {
+        //     COM.callAjax('/admin/ctgr/ctgrList/getCtgrList', 'POST', 'html', {
+        //             CtgrPrntsPid : 0,
+        //             UseYn : '1',
+        //             DelYn : '0'
+        //         },
+        //         function (result, textStatus, data) {
+        //             HOME.container.find('#CommData').replaceWith(result);
+        //         }, function (xhr, errorName, error) {
+        //             HOME.container.find('#CommData').replaceWith("<div>Ajax Error</div>");
+        //         }, function () {
+        //             //
+        //         });
+        // };
+
+        const HOME = {
+            container:$('#HOME'),
+
+            init:function(){
+                this.container = COM.getContainer('#HOME');
+                // getGnbCtgrList();
+            },
+
+            registerEventHandler:function(){
+
+            }
+        };
+
+        jQuery(function($){
+            HOME.init();
+            HOME.registerEventHandler();
+        });
+
+        //class HOME3 {
+        //    constructor() {
+        //    }
+        //    static init(){
+        //    }
+        //    static registerEventHandler(){
+        //    }
+        //    static getVersion(){
+        //    }
+        //}
+    </script>
+</div>
+</html>

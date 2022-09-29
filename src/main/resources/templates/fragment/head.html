@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head id="head" th:fragment="headFragment">
+    <title>제이제이홈</title>
+
+    <meta name="keyword" content="HTML, meta, tag, element, reference">
+    <meta name="author" content="jeje">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge; chrome=1" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+
+    <link rel="stylesheet" th:href="@{/css/comm.css}" >
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" >
+
+    <script th:src="@{/js/jquery-3.6.0.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <script th:src="@{/js/comm.js}"></script>
+    <script th:src="@{/js/loding.js}"></script>
+
+    <!-- 컨텐츠 css 파일을 넣는다.-->
+    <th:block layout:fragment="location-css"></th:block>
+    <!-- 컨텐츠 script 파일을 넣는다.-->
+    <th:block layout:fragment="location-js"></th:block>
+    <!-- 컨텐츠 scss 파일을 넣는다.-->
+    <th:block layout:fragment="location-scss"></th:block>
+</head>
+</html>

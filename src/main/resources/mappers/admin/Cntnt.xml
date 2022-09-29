@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.myapp.mapper.admin.CntntMpp">
+    <select id="getCntntList" parameterType="com.study.myapp.model.admin.CntntModel" resultType="com.study.myapp.model.admin.CntntModel">
+        SELECT
+        @RowCount := @RowCount + 1 AS RowNum
+        ,MPPCTGR.CtgrPid AS MppCtgrPid
+        ,CG.CtgrName AS MppCtgrName
+        ,CT.CntntPid
+        ,CT.CntntTitle
+        ,CT.Cntnt
+        ,CT.CntntDspy
+        ,CT.VwCnt
+        ,CT.Sort
+        ,CT.UseYn
+        ,CT.DelYn
+        ,CT.CreateDate
+        ,CT.CreateUserPid
+        ,(select UI.UserName from myapp.user as UI where UI.UserPid = CT.CreateUserPid) as CreateName
+        ,(select UI.UserId from myapp.user as UI where UI.UserPid = CT.CreateUserPid) as CreateUserId
+        ,CT.ModifyDate
+        ,CT.ModifyUserPid
+        ,(select UI.UserName from myapp.user as UI where UI.UserPid = CT.ModifyUserPid) as ModifyName
+        ,(select UI.UserId from myapp.user as UI where UI.UserPid = CT.ModifyUserPid) as ModifyUserId
+        FROM myapp.cntnt as CT
+        LEFT JOIN myapp.cntntmappctgr AS MPPCTGR
+        ON CT.CntntPid = MPPCTGR.CntntPid
+        LEFT JOIN myapp.ctgr AS CG
+        ON MPPCTGR.CtgrPid = CG.CtgrPid , (SELECT @RowCount := 0) temp
+        <where>
+            <if test="CntntTitle != '' and CntntTitle != null">
+                AND CT.CntntTitle LIKE CONCAT('%', #{CntntTitle}, '%')
+            </if>
+            <if test="Cntnt != '' and Cntnt != null">
+                AND CT.Cntnt LIKE CONCAT('%', #{Cntnt}, '%')
+            </if>
+            <if test="UseYn != '' and UseYn != null">
+                AND CT.UseYn = #{UseYn}
+            </if>
+            <if test="DelYn != '' and DelYn != null">
+                AND CT.DelYn = #{DelYn}
+            </if>
+        </where>
+        ORDER BY RowNum desc ;
+    </select>
+
+    <select id="getCntnt" parameterType="com.study.myapp.model.admin.CntntModel" resultType="com.study.myapp.model.admin.CntntModel">
+        SELECT
+            MPPCTGR.CtgrPid AS MppCtgrPid
+             ,CG.CtgrName AS MppCtgrName
+             ,CT.CntntPid
+             ,CT.CntntTitle
+             ,CT.Cntnt
+             ,CT.CntntDspy
+             ,CT.VwCnt
+             ,CT.Sort
+             ,CT.UseYn
+             ,CT.DelYn
+             ,CT.CreateDate
+             ,CT.CreateUserPid
+             ,(select UI.UserName from myapp.user as UI where UI.UserPid = CT.CreateUserPid) as CreateName
+             ,(select UI.UserId from myapp.user as UI where UI.UserPid = CT.CreateUserPid) as CreateUserId
+             ,CT.ModifyDate
+             ,CT.ModifyUserPid
+             ,(select UI.UserName from myapp.user as UI where UI.UserPid = CT.ModifyUserPid) as ModifyName
+             ,(select UI.UserId from myapp.user as UI where UI.UserPid = CT.ModifyUserPid) as ModifyUserId
+        FROM myapp.cntnt as CT
+                 LEFT JOIN myapp.cntntmappctgr AS MPPCTGR
+                           ON CT.CntntPid = MPPCTGR.CntntPid
+                 LEFT JOIN myapp.ctgr AS CG
+                           ON MPPCTGR.CtgrPid = CG.CtgrPid
+        WHERE CT.CntntPid = ${CntntPid}
+    </select>
+
+    <insert id="setCntntAdd" parameterType="com.study.myapp.model.admin.CntntModel">
+        INSERT
+        INTO myapp.cntnt
+        (
+         CntntTitle
+        ,Cntnt
+        ,CntntDspy
+        ,VwCnt
+        ,Sort
+        ,UseYn
+        ,DelYn
+        ,CreateDate
+        ,CreateUserPid
+        )
+        VALUES
+            (
+             CntntTitle = #{CntntTitle}
+            ,Cntnt = #{Cntnt}
+            ,CntntDspy = #{CntntDspy}
+            ,VwCnt = ${VwCnt}
+            ,Sort = ${Sort}
+            ,UseYn = #{UseYn}
+            ,DelYn = #{DelYn}
+            ,CreateDate = NOW()
+            ,CreateUserPid = ${CreateUserPid}
+            );
+    </insert>
+
+    <update id="setCntntModify" parameterType="com.study.myapp.model.admin.CntntModel">
+        UPDATE myapp.cntnt
+        SET CntntTitle = #{CntntTitle}
+          ,Cntnt = #{Cntnt}
+          ,CntntDspy = #{CntntDspy}
+          ,VwCnt = ${VwCnt}
+          ,Sort = ${Sort}
+          ,UseYn = #{UseYn}
+          ,DelYn = #{DelYn}
+          ,ModifyDate = NOW()
+          ,ModifyUserPid = ${ModifyUserPid}
+        WHERE CntntPid = ${CntntPid}
+    </update>
+
+    <update id="setCntntDelete" parameterType="com.study.myapp.model.admin.CntntModel">
+        UPDATE myapp.cntnt
+        SET DelYn = #{DelYn}
+          ,ModifyDate = NOW()
+          ,ModifyUserPid = ${ModifyUserPid}
+        WHERE CntntPid = ${CntntPid}
+    </update>
+
+    <update id="setCntntUse" parameterType="com.study.myapp.model.admin.CntntModel">
+        UPDATE myapp.cntnt
+        SET UseYn = #{UseYn}
+          ,ModifyDate = NOW()
+          ,ModifyUserPid = ${ModifyUserPid}
+        WHERE CntntPid = ${CntntPid}
+    </update>
+</mapper>

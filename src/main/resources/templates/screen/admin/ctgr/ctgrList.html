@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="kr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragment/layout}">
+
+
+<div layout:fragment="custom-content" id="CTGRLIST">
+    <div th:insert="fragment/adminGnb :: adminGnbFragment"></div>
+
+    <section>
+        <div name="wrap" class="wrap">
+            <h4 id="pageTitle" name="pageTitle" >카테고리리스트</h4>
+            <div>
+                <button id="btnAdd" name="btnAdd" type="button" class="btn btn-primary btn-sm">신규</button>
+            </div>
+        </div>
+
+        <div name="wrap" class="wrap">
+            <h6>검색조건</h6>
+            <form>
+                <div class="row mb-1">
+                    <div class="col-md-3">
+                        <label class="form-label" for="CtgrPrntsPid">상위카테고리명</label>
+                        <select class="form-select" id="CtgrPrntsPid" name="CtgrPrntsPid">
+                            <option value="">전체</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="CtgrName">카테고리명</label>
+                        <input class="form-control" type="text"
+                               id="CtgrName" name="CtgrName" value=""
+                               placeholder="입력">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label " for="UseYn">공개여부</label>
+                        <select class="form-select" id="UseYn" name="UseYn">
+                            <option value="">전체</option>
+                            <option value="1">사용</option>
+                            <option value="0">미사용</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label " for="DelYn">삭제여부</label>
+                        <select class="form-select" id="DelYn" name="DelYn">
+                            <option value="">전체</option>
+                            <option value="1">삭제</option>
+                            <option value="0">미삭제</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+            <div>
+                <button type="button"
+                        id="btnSearch" name="btnSearch"
+                        class="btn btn-primary btn-sm">조회</button>
+            </div>
+        </div>
+
+
+        <div name="wrap" class="wrap">
+            <h6>검색결과</h6>
+            <div id="CommData" name="CommData">
+<!--                <div id="CommMsgData"-->
+<!--                     name="CommMsgData"-->
+<!--                     style="color: #736464"-->
+<!--                     th:if="${msg != null}">-->
+<!--                    <span name="Status"-->
+<!--                          th:text="${msg.Status}"></span>-->
+<!--                    <span name="Title"-->
+<!--                          th:text="${msg.Title}"></span>-->
+<!--                    <span name="Message"-->
+<!--                          th:text="${msg.Message}"></span>-->
+<!--                </div>-->
+                <table class="table table-hover table-bordered" id="table" name="table">
+                    <thead>
+                    <tr>
+                        <td>카테고리명</td>
+                        <td>정렬</td>
+                        <td>디스플레이타입</td>
+                        <td>디스플레이권한</td>
+                        <td>수정</td>
+                        <td>공개여부</td>
+                        <td>삭제여부</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${ctgrList != null && #lists.size(ctgrList) > 0}"
+                        th:each="ctgr, idx : ${ctgrList}"
+                        th:data-ctgrprntspid="${ctgr?.CtgrPrntsPid}"
+                        th:data-ctgrpid="${ctgr?.CtgrPid}"
+                        th:data-ctgrlevel="${ctgr?.CtgrLevel}"
+                        th:data-useyn="${ctgr?.UseYn}"
+                        th:data-delyn="${ctgr?.DelYn}"
+                        th:classappend="${ctgr?.CtgrLevel} == '0' ? ctgrPointColor">
+
+                        <td th:text="${ctgr.CtgrName}">카테고리명</td>
+                        <td th:text="${ctgr.Sort}">정렬순서</td>
+                        <td th:text="${ctgr.CtgrDspyType} eq '0' ? '일반' : '썸네일'">디스플레이타입</td>
+                        <td th:text="${ctgr.CtgrDspy} eq '0' ? '모두' : '개별'">디스플레이권한</td>
+                        <td><button name="btnModify" class="btn btn-secondary btn-sm"> 수정 </button></td>
+                        <td><button name="btnUse" class="btn btn-secondary btn-sm" th:text="${ctgr.UseYn} == '1' ? '공개' : '미공개'"> 공개 </button></td>
+                        <td><button name="btnDelete" class="btn btn-secondary btn-sm" th:text="${ctgr.DelYn} == '1' ? '삭제' : '미삭제'"> 삭제 </button></td>
+                    </tr>
+                    <tr th:unless="${ctgrList != null && #lists.size(ctgrList) > 0}">
+                        <td colspan='7'>no Data<td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script type="text/javascript" th:inline="javascript">
+
+        let getCtgrList = function () {
+            // COM.showLoading();
+            let paramData = CTGRLIST.container.find('form').serializeObject();
+            COM.callAjax('/admin/ctgr/ctgrList/getCtgrList', 'POST', 'html', paramData,
+                function (result, textStatus, data) {
+                    CTGRLIST.container.find('#CommData').replaceWith(result);
+                }, function (xhr, errorName, error) {
+                    CTGRLIST.container.find('#CommData').replaceWith("<div>Ajax Error</div>");
+                }, function () {
+                    // let status = CTGRLIST.container.find('#CommMsgData [name=Status]').text();
+                    // if (COM.intOnly(status) != 200) {
+                    //     let message = CTGRLIST.container.find('#CommMsgData [name=Message]').text();
+                    //     if (COM.isNullOrEmpty(message)) {
+                    //         message = "[" + status + "]메시지 값이 비어있습니다.";
+                    //     }
+                    //     alert(message);
+                    // }
+                });
+        };
+
+        let setCtgrAction = function (param1,param2,param3,param4,param5) {
+            let Url = param1.name === "btnUse" ? "/admin/ctgr/ctgrList/setCtgrUse" :
+                      param1.name === "btnDelete" ? "/admin/ctgr/ctgrList/setCtgrDelete" :
+                      "";
+            if (COM.isNullOrEmpty(Url)) {
+                return false;
+            }
+            let paramData = {
+                CtgrPrntsPid: param2,
+                CtgrPid: param3,
+                DelYn: param4 === 1 ? 0 : 1,
+                UseYn: param5 === 1 ? 0 : 1
+            };
+            COM.callAjax(Url, 'POST', 'html', paramData,
+                function (result, textStatus, data) {
+                    CTGRLIST.container.find('#CommMsgData').replaceWith(result);
+                }, function (xhr, errorName, error) {
+                    CTGRLIST.container.find('#CommMsgData').replaceWith("<div>Ajax Error</div>");
+                }, function () {
+                    getCtgrList();
+                    // let status = CTGRLIST.container.find('#CommMsgData [name=Status]').text();
+                    // if (COM.intOnly(status) === 200) {
+                    //     getCodeList();
+                    // } else {
+                    //     let message = CTGRLIST.container.find('#CommMsgData [name=Message]').text();
+                    //     if (COM.isNullOrEmpty(message)) {
+                    //         message = "메시지 값이 비어있습니다."
+                    //     }
+                    //     alert(message);
+                    // }
+                });
+        };
+
+        const CTGRLIST = {
+            container:null,
+            init:function(){
+                this.container = COM.getContainer('#CTGRLIST');
+                getCtgrList();
+            },
+            registerEventHandler:function(){
+                // 신규버튼
+                CTGRLIST.container.find('button[name=btnAdd]').on('click', function (e) {
+                    e.preventDefault();
+                    location.href = /*[[ @{/admin/ctgr/ctgrWrite} ]]*/;
+                });
+                // 조회버튼
+                CTGRLIST.container.find('button[name=btnSearch]').on('click', function (e) {
+                    e.preventDefault();
+                    getCtgrList();
+                });
+                // 수정버튼
+                CTGRLIST.container.find('section').on('click', 'tbody tr button[name=btnModify]' , function (e) {
+                    e.preventDefault();
+                    let param1 = $(this).parents('tr').data('ctgrprntspid');
+                    let param2 = $(this).parents('tr').data('ctgrpid');
+                    // let param3 = $(this).parents('tr').data('delyn');
+                    // let param4 = $(this).parents('tr').data('useyn');
+                    // if (COM.isNullOrEmpty(param1) || COM.isNullOrEmpty(param2) || COM.isNullOrEmpty(param3)) {
+                    if (COM.isNullOrEmpty(param1) || COM.isNullOrEmpty(param2)) {
+                        alert('올바른 접근이 아닙니다.');
+                    } else {
+                        location.href = '/admin/ctgr/ctgrWrite?CtgrPrntsPid=' + param1 + '&CtgrPid=' + param2;
+                    }
+                });
+                // 공개버튼, 삭제버튼
+                CTGRLIST.container.find('section').on('click', 'tbody tr button[name=btnUse], tbody tr button[name=btnDelete]' , function (e) {
+                    e.preventDefault();
+                    let Message = this.name === "btnUse" ? "카테고리 공개여부를 변경하시겠습니까?" :
+                                  this.name === "btnDelete" ? "카테고리 삭제 시 연결된 하위 내용 모두 삭제됩니다. 삭제하시겠습니까?" :
+                                  "";
+                    if (confirm(Message) === true) {
+                        let param1 = $(this).parents('tr').data('ctgrprntspid');
+                        let param2 = $(this).parents('tr').data('ctgrpid');
+                        let param3 = $(this).parents('tr').data('delyn');
+                        let param4 = $(this).parents('tr').data('useyn');
+
+                        if (COM.isNullOrEmpty(param1) || COM.isNullOrEmpty(param2)) {
+                            alert('올바른 접근이 아닙니다.');
+                        } else if (this.name === "btnDelete" && param3 === "1") {
+                            alert('이미 삭제된 데이터 입니다.');
+                        } else {
+                            setCtgrAction(this,param1,param2,param3,param4);
+                        }
+                    }
+                });
+
+
+                // // 테스트
+                // CTGRLIST.container.find('section').on('click', 'tbody tr button[name=btnUse]' , function (e) {
+                //     e.preventDefault();
+                //     COM.openPopup('pop_01', CTGRLIST.container, function(popup) {
+                //         popup.data("data", {
+                //             CtgrPrntsPid: "",CtgrPid: ""
+                //         });
+                //     });
+                // });
+            }
+        }
+
+        jQuery(function($){
+            CTGRLIST.init();
+            CTGRLIST.registerEventHandler();
+        });
+    </script>
+</div>
+</html>

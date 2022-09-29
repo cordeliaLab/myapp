@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="kr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragment/layout}">
+
+
+<div layout:fragment="custom-content" id="MEMBERLIST">
+    <div th:insert="fragment/adminGnb :: adminGnbFragment"></div>
+    <div>
+        <button type="button" class="btn btn-primary btn-sm">목록</button>
+        <button type="button" class="btn btn-primary btn-sm">신규</button>
+    </div>
+    <h4>회원리스트</h4>
+
+    <script type="text/javascript" th:inline="javascript">
+        let MEMBERLIST = (function () {
+            let $container = $("#MEMBERLIST");
+
+            let init = function () {
+            };
+
+            let registerEventHandler = function () {
+            };
+
+            return {
+                init: function () {
+                    init();
+                    registerEventHandler();
+                }
+            };
+        })();
+        MEMBERLIST.init();
+    </script>
+</div>
+</html>
